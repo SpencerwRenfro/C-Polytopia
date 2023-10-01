@@ -1,0 +1,228 @@
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+const int SIZE = 23;
+char fighter_Input[] = {'\0'};
+char defender_Input[50];
+char blank_array[SIZE] = {'\0'};
+int CIA, CID;
+char veteran = 'N';
+char defence_bonus = 'N';
+float input_HP;
+
+int valid_Selection = 1;
+// int index;
+
+typedef struct {
+	char Name[25];
+	int Max_Health;
+	float Health;
+	float Attack;
+	float Defence;
+	float Attack_Force;
+	float Deffence_Force;
+	float Attack_Result;
+	float Defence_Result;
+	float Total_Damage;
+	float Defence_Bonus;
+
+} Character;
+
+Character Data[SIZE];
+
+void Load_Characters() {
+	int health = 0;
+	float defence = 0;
+	float attack = 0;
+	char names[25] = {'\0'};
+	int i = 0;
+
+	FILE *fpr = fopen("characters.txt", "r");
+	if (fpr == 0) {
+		perror("FIle not opened correctly\n");
+	} else {
+		printf("Opened succesfully!\n");
+	}
+
+	while (fscanf(fpr, "%s %d %f %f", names, &health, &attack, &defence) !=
+		   EOF) {
+		strcpy(Data[i].Name, names);
+		Data[i].Max_Health = health;
+		Data[i].Attack = attack;
+		Data[i].Defence = defence;
+		Data[i].Defence_Bonus = 1;
+		printf(
+			"Index[%d] %s %d %.2f %.2f\n",
+			i,
+			Data[i].Name,
+			Data[i].Max_Health,
+			Data[i].Attack,
+			Data[i].Defence);
+
+		i++;
+	}
+
+	fclose(fpr);
+	return;
+}
+
+int Get_Character(char empty[], int index) {
+	int notFound = -1;
+	int found = -1;
+
+	for (int i = 0; ((i < SIZE) && (i != found)); i++) {
+		if (strcmp(Data[i].Name, empty) == 0) {
+			found = i;
+			return i;
+		} else if (i == index) {
+			found = i;
+			return i;
+		}
+	}
+	return notFound;
+}
+
+int main() {
+
+
+	int index;
+	Load_Characters();
+	printf("\n\nEnter number for character and input health\n");
+	scanf("%d %f%*c", &index, &input_HP);
+
+	printf("Is it a veteran?\n");
+	scanf("%c%*c", &veteran);
+
+
+
+	CIA = Get_Character(blank_array, index);
+
+	if ((veteran == 'Y') || (veteran == 'y')) {
+		Data[CIA].Max_Health += 5;
+	}
+	Data[CIA].Health = input_HP;
+	Data[CIA].Attack_Force =
+		Data[CID].Attack * (Data[CIA].Health / Data[CIA].Max_Health);
+	Data[CIA].Deffence_Force =
+		Data[CIA].Defence * (Data[CIA].Health / Data[CIA].Max_Health);
+	Data[CIA].Total_Damage = Data[CIA].Attack_Force + Data[CIA].Deffence_Force;
+
+
+	printf(
+		"\n\n\n----------ATTACKER---------\nSELECTED:%s \nINPUT HEALTH:%.0f "
+		"\tMAX HEALTH:%d\nAttack:%.2f\nAttack Force: %.2f\nDefence Force: %.2f "
+		"\nTotal Damage %.2f \nIndex[%d]\n\n",
+		Data[CIA].Name,
+		Data[CIA].Health,
+		Data[CIA].Max_Health,
+		Data[CIA].Attack,
+		Data[CIA].Attack_Force,
+		Data[CIA].Deffence_Force,
+		Data[CIA].Total_Damage,
+		CIA);
+
+
+	printf("\n\nEnter number for character and input health\n");
+	scanf("%d %f%*c", &index, &input_HP);
+	printf("Is it a veteran?\n");
+	scanf("%c%*c", &veteran);
+	printf("Defence Bonus?\n");
+	scanf("%c%*c", &defence_bonus);
+	CID = Get_Character(blank_array, index);
+	Data[CID].Defence_Bonus = 1;
+	if ((defence_bonus == 'Y') || (defence_bonus == 'y')) {
+		printf("City/Forest/Mountaint or Wall?\n");
+		scanf("%c%*c", &defence_bonus);
+		if ((((defence_bonus == 'C') || (defence_bonus == 'c')) ||
+			 (defence_bonus == 'F') || (defence_bonus == 'f')) ||
+			(defence_bonus == 'M') || (defence_bonus == 'm')) {
+			Data[CID].Defence_Bonus *= 1.5;
+		} else if (((defence_bonus == 'W') || (defence_bonus == 'w'))) {
+			Data[CID].Defence_Bonus *= 2.0;
+		}
+	}
+
+
+	Data[CID].Health = input_HP;
+	if ((veteran == 'Y') || (veteran == 'y')) {
+		Data[CID].Max_Health += 5;
+	}
+
+	Data[CID].Deffence_Force =
+		Data[CID].Defence * (Data[CID].Health / Data[CID].Max_Health);
+
+	printf(
+		"\n\n\n----------DEFENDER---------\nSELECTED:%s \nINPUT HEALTH:%.0f "
+		"\tMAX HEALTH:%d\nDefence: %f\n Defence Force:%f\n Defence "
+		"Bonus:%f\n\nIndex[%d]\n\n",
+		Data[CID].Name,
+		Data[CID].Health,
+		Data[CID].Max_Health,
+		Data[CID].Defence,
+		Data[CID].Deffence_Force,
+		Data[CID].Defence_Bonus,
+		CID);
+
+
+	// for attacker
+	Data[CIA].Attack_Force =
+		Data[CIA].Attack * (Data[CIA].Health / Data[CIA].Max_Health);
+
+	Data[CID].Deffence_Force = Data[CID].Defence *
+		(Data[CID].Health / Data[CID].Max_Health) * Data[CID].Defence_Bonus;
+	Data[CIA].Total_Damage = Data[CIA].Attack_Force + Data[CID].Deffence_Force;
+	printf(
+		"\n\n\n\nTotal Damage:%f\nDefence Force:%f\nAttack Force:%f",
+		Data[CIA].Total_Damage,
+		Data[CIA].Deffence_Force,
+		Data[CIA].Attack_Force);
+
+	// for defender
+	Data[CID].Deffence_Force = Data[CID].Defence *
+		(Data[CID].Health / Data[CID].Max_Health) * Data[CID].Defence_Bonus;
+
+	Data[CID].Defence_Result =
+		round(Data[CID].Deffence_Force / Data[CIA].Total_Damage) * 4.5;
+
+  float defenseNoRound = (Data[CID].Deffence_Force / Data[CIA].Total_Damage) * 4.5;
+
+printf("before round %f\n after round ", defenseNoRound);
+	// End Result
+	printf("\n----------Results---------");
+	float Attack_Result = 1;
+	Attack_Result =
+		((Data[CIA].Attack_Force / Data[CIA].Total_Damage) * Data[CIA].Attack *
+		 4.5);
+
+	Data[CIA].Attack_Result = 0;
+	Data[CIA].Total_Damage = 0;
+	Data[CIA].Total_Damage = Data[CIA].Attack_Force + Data[CID].Defence_Bonus;
+	Data[CIA].Attack_Result =
+		(Data[CIA].Attack_Force / Data[CIA].Total_Damage) * Data[CIA].Attack *
+		4.5;
+	Data[CID].Defence_Result =
+		(Data[CID].Deffence_Force / Data[CIA].Total_Damage) *
+		Data[CID].Defence * 4.5;
+
+	int attack_HP_Result = Data[CID].Health - Data[CIA].Attack_Result;
+	float defence_HP_Result = Data[CIA].Health - Data[CID].Defence_Result;
+
+	printf("\n\nATTACKER HEALTH RESULT:%d", attack_HP_Result);
+	printf("\n\nDEFENSE HEALTH RESULT:%.2f", defence_HP_Result);
+
+
+	return 0;
+}
+/*
+attackForce = attacker.attack * (attacker.health / attacker.maxHealth)
+
+defenseForce = defender.defense * (defender.health / defender.maxHealth) *
+defenseBonus
+
+totalDamage = attackForce + defenseForce
+
+attackResult = round((attackForce / totalDamage) * attacker.attack * 4.5)
+
+defenseResult = round((defenseForce / totalDamage) * defender.defense * 4.5)*/
